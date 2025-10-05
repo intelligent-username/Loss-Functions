@@ -4,7 +4,7 @@
 
 ![Cover](cover.jpg)
 
-*Note: the concept of loss functions is closely related to [Distance Metrics](https://github.com/intelligent-username/Distance-Metrics).*
+*Note: the concept of loss functions is closely related to that of [Similarity Metrics](https://github.com/intelligent-username/Similarity-Metrics).*
 
 Loss arises whenever performance falls short of expectation. In predictive applications, it is essential to assess the reliability of the estimator. A **loss function** provides a quantitative rule for measuring how far predictions diverge from observed outcomes. By minimizing the loss, we guide the learning process of a predictive system toward parameters that yield greater accuracy.
 
@@ -103,7 +103,7 @@ with
 - $y_{i,c} \in {0,1}$ indicates whether sample $i$ belongs to class $c$ (i.e. exactly one entry is 1, the rest are 0).
 - $\hat{y}_{i,c} \in (0, 1)$ being the *predicted* probability for sample $i$ to belong to class $c$.
 
-Now, since $$\sum_{c=1}^C y_{i,c} = 1$$ for each sample $i$, only the log-probability of the true class contributes to the loss, we can simplify to:
+Now, since $$\sum_{c=1}^C y_{i,c} = 1$$ for each sample $i$, we can simplify to:
 
 $$
 L = -\frac{1}{N} \sum_{i=1}^N \log(\hat{y}_{i,k^\ast})
