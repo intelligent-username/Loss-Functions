@@ -4,7 +4,25 @@
 
 *Note: the concept of loss functions is closely related to that of [Similarity Metrics](https://github.com/intelligent-username/Similarity-Metrics).*
 
-Loss arises whenever performance falls short of expectation. In predicUnlike MSE and cross-entropy, IoU considers global area overlap. That's why IoU directly measures geometric precision ($\frac{\text{True positives}}{\text{Total elements}}$).ive applications, it is essential to assess the reliability of the estimator. A **loss function** provides a quantitative rule for measuring how far predictions diverge from observed outcomes. By minimizing the loss, we guide the learning process of a predictive system toward parameters that yield greater accuracy.
+Loss arises whenever performance falls short of expectation. In predicive applications, it is essential to assess the reliability of the estimator. A **loss function** provides a quantitative rule for measuring how far predictions diverge from observed outcomes. By minimizing the loss, we guide the learning process of a predictive system toward parameters that yield greater accuracy.
+
+- [Loss Functions](#loss-functions)
+  - [The Functions](#the-functions)
+    - [1. Mean Squared Error (MSE)](#1-mean-squared-error-mse)
+    - [2. Mean Absolute Error (MAE)](#2-mean-absolute-error-mae)
+    - [3. Quantile Loss](#3-quantile-loss)
+    - [4. Huber Loss](#4-huber-loss)
+    - [5. Log Loss](#5-log-loss)
+    - [6. Categorical Cross-Entropy](#6-categorical-cross-entropy)
+    - [7. Negative Log Likelihood (NLL)](#7-negative-log-likelihood-nll)
+    - [8. Focal Loss](#8-focal-loss)
+    - [9. Centre Loss](#9-centre-loss)
+    - [10. Hinge Loss](#10-hinge-loss)
+    - [11. Cosine Similarity Loss](#11-cosine-similarity-loss)
+    - [12. Jaccard Loss](#12-jaccard-loss)
+  - [Use Cases](#use-cases)
+  - [Installation \& Setup](#installation--setup)
+  - [License](#license)
 
 ## The Functions
 
@@ -53,7 +71,8 @@ L_i =
 \end{cases}
 $$
 
-or more concisely:
+for individual losses
+The total loss is:
 
 $$L_\tau = \sum_{i=1}^N \max\big(\tau(y_i - \hat{y}_i), (1-\tau)(\hat{y}_i - y_i)\big)$$
 
@@ -264,17 +283,17 @@ For soft predictions, $\hat{y}_i$ may lie in $[0,1]$.
 The numerator (dot product) counts overlapping predictions. The denominator takes the union of all positive predictions.
 Here, we don't rescale, so the range for the loss function is $[0, 2]$.
 
-Unlike MSE and cross-entropy, IoU considers global area overlap. That’s why IoU directly measures geometric precision ($\frac{\text{Number of True positives}}{\text{Number of elements}}$).
+Unlike MSE and cross-entropy, IoU considers global area overlap. That's why IoU directly measures geometric precision ($\frac{\text{True positives}}{\text{Total elements}}$).
 
 IoU loss is used in image segmentation (i.e. finding which two pictures are of the same object) and other high accuracy overlap-based tasks.
 
 ---
 
-### Which Loss Function to Use When
+## Use Cases
 
 - For **Regression Tasks**, use MSE, MAE, Huber Loss, or Quantile Loss, depending on the context.
 - For **Classification**, use Log Loss, Categorical Cross-Entropy, Focal Loss, or Negative Log-Likelihood depending on the context.
-- For **Specialized Tasks**, use one of the others, like cosine similarity for embeddings, or Jaccard loss for segmentation.
+- For **Specialized Tasks**, use one of the others, like cosine similarity for embeddings, or Jaccard loss for segmentation, or make one of your own.
 
 ---
 
@@ -305,6 +324,8 @@ IoU loss is used in image segmentation (i.e. finding which two pictures are of t
 
 Feel free to replace or expand upon these demos.
 
-### License
+---
+
+## License
 
 This repository is under the [MIT License](LICENSE).
