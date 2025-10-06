@@ -1,7 +1,5 @@
 # Loss Functions
 
-## In Progress🚧
-
 ![Cover](cover.jpg)
 
 *Note: the concept of loss functions is closely related to that of [Similarity Metrics](https://github.com/intelligent-username/Similarity-Metrics).*
@@ -10,7 +8,16 @@ Loss arises whenever performance falls short of expectation. In predictive appli
 
 ## The Functions
 
-\*Note: from now on, $N$ indicates the number of samples, $y_i$ the true value, and $\hat{y}_i$ the predicted value. Any other notation will be defined as needed.
+\*Note: from now on:
+
+- $N$ is the number of samples
+- $y_i$ is the true value, and
+- $\hat{y}_i$ (or anything else with a h$\hat{a}$t) is the predicted value.
+- $\log_n$ is assumed to have the base $e$, but bases 2 or 10 can also be used, changing the scale but not the relative ordering of losses.
+
+- 'Robustness' refers to resilience against outliers.
+
+Any other notation will be defined as needed.
 
 ### 1. Mean Squared Error (MSE)
 
@@ -26,7 +33,7 @@ Mean Squared Error (MSE) is among the most widely recognized loss functions. For
 
 $$L = \frac{1}{N} \sum_{i=1}^N |y_i - \hat{y}_i|$$
 
-Similar to MSE, but without squaring the errors. As a consequence, MAE is often more accurate, (less sensitive to outliers), and provides a more intuitive average error. MAE is also closer to the median of the error, because absolute deviation weights all residuals equally and balances them symmetrically around a central point.
+Similar to MSE, but without squaring the errors. As a consequence, MAE is often more robust, and provides a more intuitive average error. MAE is also closer to the median of the error, because absolute deviation weights all residuals equally and balances them symmetrically around a central point.
 
 However, since the absolute value function is not differentiable at zero, optimization is harder, although micro-gradients can be employed.
 
@@ -50,9 +57,9 @@ $$L_\tau = \sum_{i=1}^N \max\big(\tau(y_i - \hat{y}_i), (1-\tau)(\hat{y}_i - y_i
 
 - Where $\tau \in (0, 1)$ is a parameter that determines the quantile being estimated. I.e. if $\tau = 0.9$, we are estimating the 90th percentile.
 
-Quantile loss is a generalization of MAE , it can be tuned asymmetrically in order to give preference to over-or-under-predictions based on the domain-specific context. Note that, when $\tau = 0.5$, Quantile Loss is just the same as MAE.
+Quantile loss is a generalization of MAE, it can be tuned asymmetrically in order to give preference to over-or-under-predictions based on the domain-specific context. Note that, when $\tau = 0.5$, Quantile Loss is just the same as MAE.
 
-This is called *quantile* loss because it specifically targets a certain range (i.e. quantile) of predictions by adjusting the penalty. Once again, if we set $\tau = 0.9$, the loss function will penalize under-predictions (where $\hat{y}_i < y_i$) more heavily than over-predictions. In other words, we would be making predictions in the "over-estimation" interval. This is especially useful in Gradient Boosting, where component-based guesses are adjusted iteratively based on the range of previous residuals.
+This is called *quantile* loss because it specifically targets a certain range (i.e. quantile) of predictions by adjusting the penalty. Once again, if we set $\tau = 0.9$, the loss function will penalize under-predictions (where $\hat{y}_i < y_i$) more heavily than over-predictions. In other words, predictions are biased towards overestimation. Decreasing $\tau$ increases the penalty for over-predictions, biasing them towards underestimation. This is especially useful in Gradient Boosting, where component-based guesses are adjusted iteratively based on the range of previous residuals.
 
 Another important application of this is quantile regression, wherein we estimate a range rather than direct value or mean.
 
@@ -84,7 +91,6 @@ with
 
 - $y_i \in \{0, 1\}$ being the true binary label, and
 - $\hat{y}_i \in (0, 1)$ being the predicted probability of the positive class.
-- $\log_n$ is assumed to have the base $e$, but bases 2 or 10 can also be used, changing the scale but not the relative ordering of losses.
 
 Also called Binary Cross-Entropy, log Loss is derived from information theory as the negative log-likelihood of a Bernoulli distribution. It measures how well the predicted probabilities align with the actual outcomes. Confident but wrong predictions receive a higher penalty than uncertain ones.
 
@@ -100,8 +106,8 @@ $$L = -\frac{1}{N} \sum_{i=1}^N \sum_{c=1}^C y_{i,c} \log(\hat{y}_{i,c})$$
 
 with
 
-- $y_{i,c} \in {0,1}$ indicates whether sample $i$ belongs to class $c$ (i.e. exactly one entry is 1, the rest are 0).
-- $\hat{y}_{i,c} \in (0, 1)$ being the *predicted* probability for sample $i$ to belong to class $c$.
+- $y_{i,c} \in \{0,1\}$ indicates whether sample $i$ belongs to class $c$ (i.e. exactly one entry equals $1$, the rest are $0$).
+- $\hat{y}_{i,c} \in (0, 1)$ being the *predicted* probability for sample $i$ belonging to class $c$.
 
 Now, since $$\sum_{c=1}^C y_{i,c} = 1$$ for each sample $i$, we can simplify to:
 
@@ -109,15 +115,34 @@ $$
 L = -\frac{1}{N} \sum_{i=1}^N \log(\hat{y}_{i,k^\ast})
 $$
 
-This time, unlike binary cross-entropy, we take the negative log-likelihood of a categorical distribution. Once again, $log_n$ is assumed to have the base $e$, and more confident wrong predictions are punished more heavily.
+This time, unlike binary cross-entropy, we take the negative log-likelihood of a categorical distribution.
 
 **Application:** Used in multi-class (discrete) classification.
 
 ---
 
-### 7. Focal Loss
+### 7. Negative Log Likelihood (NLL)
 
-With other cross-entropy losses, we may have a disproportionate number of examples that are 'easy' to predict, and these may dominate the loss values. Focal Loss modifies standard cross-entropy by adding a modulating factor.
+NLL is the general log-likelihood loss. Binary and categorical cross-entropy are special cases of it.
+
+$$L = -\frac{1}{N} \sum_{i=1}^N \log P(y_i \mid x_i; \theta)$$
+
+Where:
+
+- $P(y_i \mid x_i; \theta)$ is the predicted probability of the true label under model parameters $\theta$.
+- Since probabilities lie in $(0, 1)$, they have negative logs. The minus sign in front negates this to make the loss a positive value.
+
+Negative Log-Likelihood measures how confident the model is in its predictions, and punishes it for being confidently wrong. Correct classes should be predicted with a probability of $1$, and all others should have a $0$. The negative log-likelihood captures how far off this ideal scenario is by taking the logarithm of the probability assigned to the correct class, and negating it. The higher this probability, the better the model. Then, we divide by $N$ to find the average loss. Thus, maximizing the likelihood (accuracy) means minimizing the negative log-likelihood.
+
+As a result, **NLL** encourages models to predict the right class with calibrated confidence. For example, predicted $0.95$ for the true class would give a loss of only $-log(0.95)$, which is relatively small, whereas predicting $0.05$ would give a loss that is tremendously large. In Bayesian terms, it measures how well the predicted distribution matches the empirical distribution. Models minimizing NLL become increasingly reliable in their probabilistic interpretation — their predicted probabilities begin to reflect actual likelihoods observed in data.
+
+This loss function is useful in more general classification tasks.
+
+---
+
+### 8. Focal Loss
+
+With other cross-entropy losses, we may have a high proportion of examples that are 'easy' to predict, which may dominate the loss values. Focal Loss modifies standard cross-entropy by adding a modulating factor, $(1-\hat{y}_i)^\gamma$.
 
 $$L = -\frac{1}{N} \sum_{i=1}^N \big[\alpha (1 - \hat{y}_i)^\gamma y_i \log(\hat{y}_i) + (1-\alpha) \hat{y}_i^\gamma (1-y_i) \log(1-\hat{y}_i)\big]$$
 
@@ -131,11 +156,30 @@ When $\gamma = 0$, Focal Loss reduces to standard cross-entropy.
 
 Notice that, with this added term, with an 'easy' class (i.e. a high confidence prediction), $\hat{y}_i$ will be close to 1, and the modulating factor $(1-\hat{y}_i) ^ \gamma$, will approach zero. Conversely, poorly predicted samples (small $\hat{y}_i$) yield a factor near one, leaving their loss unaffected and thus emphasized during training.
 
-**Application:** Essential for enforcing higher accuracy on difficult examples, specifically in imbalanced classification problems, like medical diagnosis.
+Focal loss, in essence, is used for enforcing higher accuracy on difficult examples. For example, on medical diagnoses.
 
 ---
 
-### 8. Hinge Loss
+### 9. Centre Loss
+
+   $$L = \tfrac{1}{2} \sum_{i=1}^N | x_i - c_{y_i} |_2^2$$
+
+Where:
+
+- $x_i$ is the feature representation of the $i$-th sample.
+- $c_{y_i}$ is the centre (average embedding) of the class to which the $i$‑th sample belongs.
+- $|\cdot|_2$ denotes the Euclidean distance.
+
+Centre Loss is used to encourage a model to make features of the same class cluster together in feature space. When working with deep learning tasks, input features are often embedded as vectors and used to make predictions. Oftentimes, classification loss suffices, but when we need *specificity* (such as recognizing a specific face, not just a 'human face'), we need to ensure that features of the same class are close together.
+
+The loss measures how far each feature vector is from its class centre and penalizes larger distances. Minimizing Centre Loss forces samples from the same class to cluster tightly around their centre, reducing intra‑class variance.
+This is often combined with a standard classification loss from earlier to ensure both inter-class separability and intra-class compactness.
+
+**Application:** Crucial in deep feature learning tasks such as image retrieval.
+
+---
+
+### 10. Hinge Loss
 
 Support Vector Machines help classification models generalize better by maximizing the margin between classes. It is mainly trained using Hinge Loss.
 
@@ -143,6 +187,8 @@ $$L = \frac{1}{N} \sum_{i=1}^N \max(0, 1 - y_i \hat{y}_i)$$
 
 Where:
 
+- $y_i \in \{-1, 1\}$.
+- $\hat{y}_i \in (0, 1)$.
 - $(y_i \hat{y}_i)$ is the 'margin'.
 - If $(y_i \hat{y}_i \ge 1)$, the sample is classified correctly with a safe margin, and loss = 0.
 - If $(y_i \hat{y}_i < 1)$, either the sample is misclassified or classified with insufficient confidence, and loss increases linearly.
@@ -151,72 +197,84 @@ Where:
 
 ---
 
-### 9. Centre Loss
+### 11. Cosine Similarity Loss
 
-$$L = \tfrac{1}{2} \sum_{i=1}^N | x_i - c_{y_i} |_2^2$$
+Often times, we represent features (for example images) numerically as vectors, and we want to find which two have the most similar direction. For this, we use the Cosine Similarity
+
+$$\cos(\vec{u}, \vec{v}) = \frac{\vec{u} \cdot \vec{v}}{|\vec{u}||\vec{v}|}$$
+
+Where $\vec{u}$ and $\vec{v}$ are vector representations of our data. We want this similarity to be as high as possible so, in order to get a 'loss' to minimize, we create The Cosine Embedding Loss:
+
+$$L = 1 - \frac{\vec{y} \cdot \vec{\hat{y}}}{|\vec{y}||\vec{\hat{y}}|}$$
+
+Where
+
+- $\vec{y}$ is the first vector (or, in 'loss terms', the 'actual' output)
+- $\vec{\hat{y}}$ is the second vector (or, in 'loss terms', the 'predicted' output)
+- $\vec{y} \cdot \vec{\hat{y}}$: the dot product measures directional alignment.
+- $|\vec{y}||\vec{\hat{y}}|$: vector magnitudes ensure normalization
+
+Notice that, when $\vec{y}$ = $\vec{\hat{y}}$, the cosine between them is 1, i.e. the prediction is $100$% accurate, so the loss is $0$. If they are perpendicular, Loss is 1, and if they point in opposite directions, loss is 2.
+
+In this form of loss, we only care about angular similarity (directional overlap), and ignore magnitude.
+
+**Application:** Widely used in embedding spaces (e.g. image recognition) and retrieval systems (e.g. k-nearest neighbours).
+
+---
+
+### 12. Jaccard Loss
+
+Also called Intersection **Over Union Loss**.
+
+Jaccard loss measures how much two sets overlap compared to their total combined area. In other words, it measures the overlap between predicted and true regions, how much they overlap divided by how much they cover together. For example, if the overlap is $100$%, then all predictions are correct.
+
+**IoU** Score is measured by:
+
+$$J(A,B) = \frac{|A \cap B|}{|A \cup B|}$$
+
+Where $A$ is the set of true values $y_1, ..., y_N$, and $B$ is the set of predicted values $\hat{y}_1, ..., \hat{y}_N$.
+
+And written as a loss as:
+
+$$L_J = 1 - J(A,B) = 1 -  \frac{\sum_{i=1}^N (y_i\cdot\hat{y}_i)} {\sum_{i=1}^N(y_i + \hat{y}_i - y_i \cdot \hat{y}_i)}$$
 
 Where:
 
-- $x_i$ is the feature representation of the $i$-th sample.
-- $c_{y_i}$ is the centre (average embedding) of the class to which the $i$‑th sample belongs.
-- $|\cdot|_2$ denotes the Euclidean distance.
+$$y_i =
+\begin{cases}
+1, & \text{if  } i \text{ belongs to the true object}\\
+0, & \text{otherwise}
+\end{cases}
+$$
 
-Center Loss is used to encourage a model to make features of the same class cluster together in feature space. When working with deep learning tasks, input features are often embedded as vectors and used to make predictions. Often times, classification loss is used, but, when we need specificity (such as recoginizing a specific face, not just a 'human face'), we need to ensure that features of the same class are close together.
+and
 
-The loss measures how far each feature vector is from its class center and penalizes larger distances. Minimizing Center Loss forces samples from the same class to cluster tightly around their center, reducing intra‑class variance.
-This is often combined with a standard classification loss from earlier to ensure both inter-class separability and intra-class compactness.
+$$
+\hat{y}_i =
+\begin{cases}
+1, & \text{if predicted as object}\\
+0, & \text{otherwise.}
+\end{cases}
+$$
 
-**Application:** Crucial in deep feature learning tasks such as image retrieval.
+For soft predictions, $\hat{y}_i$ may lie in $[0,1]$.
 
----
+The numerator (dot product) counts overlapping predictions. The denominator takes the union of all positive predictions.
+Here, we don't rescale, so the range for the loss function is $[0, 2]$.
 
-### 10. Negative Log Likelihood (NLL)
+Unlike MSE and cross-entropy, IoU considers global area overlap. That’s why IoU directly measures geometric precision ($\frac{\# \text{ of True positives}}{\# \text{ of elements}}$).
 
-$L = -\frac{1}{N} \sum_{i=1}^N \log P(y_i \mid x_i; \theta)$
-
-$P(y_i \mid x_i; \theta)$ is the predicted probability of the true label under model parameters $\theta$. This is the general log-likelihood loss, of which binary and categorical cross-entropy are special cases.
-
-**Application:** Standard in probabilistic classification and likelihood-based inference.
-
----
-
-### 11. Cosine Similarity Loss
-
-Cosine similarity between vectors $u$ and $v$ is:
-
-$\cos(u, v) = \frac{u \cdot v}{|u||v|}$
-
-The associated loss (Cosine Embedding Loss) is:
-
-$L = 1 - \frac{y \cdot \hat{y}}{|y||\hat{y}|}$
-
-This loss emphasizes angular alignment, penalizing directional deviation more than magnitude differences.
-
-**Application:** Widely used in embedding spaces, retrieval systems, and representation learning.
+IoU loss is used in image segmentation (i.e. finding which two pictures are of the same object) and other high accuracy overlap-based tasks.
 
 ---
 
-### 12. Jaccard Loss (IoU Loss)
+### Which Loss Function to Use When
 
-The Jaccard Index, or Intersection over Union (IoU), for sets $A$ and $B$ is:
-
-$J(A,B) = \frac{|A \cap B|}{|A \cup B|}$
-
-As a loss:
-
-$L = 1 - J(A,B)$
-
-This measures set overlap, penalizing mismatch between prediction and ground truth.
-
-**Application:** Common in segmentation and detection tasks requiring spatial overlap accuracy.
+- For **Regression Tasks**, use MSE, MAE, Huber Loss, or Quantile Loss, depending on the context.
+- For **Classification**, use Log Loss, Categorical Cross-Entropy, Focal Loss, or Negative Log-Likelihood depending on the context.
+- For **Specialized Tasks**, use one of the others, like cosine similarity for embeddings, or Jaccard loss for segmentation.
 
 ---
-
-### **Which Loss Functions to Know and Use**
-
-- **Regression Tasks:** MSE, MAE, Quantile, Huber
-- **Binary Classification:** Log Loss (Binary Cross-Entropy)
-- **Multi-Class Classification:** Categorical Cross-Entropy
 
 ## Installation & Setup
 
