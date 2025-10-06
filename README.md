@@ -26,7 +26,7 @@ Mean Squared Error (MSE) is among the most widely recognized loss functions. For
 
 $$L = \frac{1}{N} \sum_{i=1}^N |y_i - \hat{y}_i|$$
 
-Similar to MSE, but without squaring the errors. As a consequence, MAE is often more accurate, (less sensitive to outliers), and provides a more intuitive average error. The MAE is also closer to the median of the error, because absolute deviation weights all residuals equally and balances them symmetrically around a central point.
+Similar to MSE, but without squaring the errors. As a consequence, MAE is often more accurate, (less sensitive to outliers), and provides a more intuitive average error. MAE is also closer to the median of the error, because absolute deviation weights all residuals equally and balances them symmetrically around a central point.
 
 However, since the absolute value function is not differentiable at zero, optimization is harder, although micro-gradients can be employed.
 
@@ -78,8 +78,6 @@ For small errors, i.e. $|y_i - \hat{y}_i| \le \delta$, Huber Loss behaves like M
 
 ### 5. Log Loss
 
-Categorical Cross-Entropy generalizes Log Loss to multiple classes:
-
 $$L = -\frac{1}{N} \sum_{i=1}^N \left[y_i \log(\hat{y}_i) + (1-y_i) \log(1-\hat{y}_i)\right]$$
 
 with
@@ -95,6 +93,8 @@ Also called Binary Cross-Entropy, log Loss is derived from information theory as
 ---
 
 ### 6. Categorical Cross-Entropy
+
+Categorical Cross-Entropy generalizes Log Loss to multiple classes:
 
 $$L = -\frac{1}{N} \sum_{i=1}^N \sum_{c=1}^C y_{i,c} \log(\hat{y}_{i,c})$$
 
@@ -117,31 +117,56 @@ This time, unlike binary cross-entropy, we take the negative log-likelihood of a
 
 ### 7. Focal Loss
 
-Focal Loss extends cross-entropy by down-weighting well-classified examples, concentrating learning on harder, misclassified cases.
+With other cross-entropy losses, we may have a disproportionate number of examples that are 'easy' to predict, and these may dominate the loss values. Focal Loss modifies standard cross-entropy by adding a modulating factor.
 
-$L = -\frac{1}{N} \sum_{i=1}^N \big[\alpha (1 - \hat{y}_i)^\gamma y_i \log(\hat{y}_i) + (1-\alpha) \hat{y}_i^\gamma (1-y_i) \log(1-\hat{y}_i)\big]$
+$$L = -\frac{1}{N} \sum_{i=1}^N \big[\alpha (1 - \hat{y}_i)^\gamma y_i \log(\hat{y}_i) + (1-\alpha) \hat{y}_i^\gamma (1-y_i) \log(1-\hat{y}_i)\big]$$
 
-**Application:** Essential for imbalanced classification, where prioritizing difficult examples improves performance.
+With
+
+- $\alpha \in [0,1]$ balancing the importance of positive/negative examples.
+- $\gamma \ge 0$ focusing learning on hard examples (by reducing the loss contribution from easy ones). The higher $\gamma$ is, the more emphasis is placed on hard examples.
+- $\hat{y}_i$ is the predicted probability for the true class.
+
+When $\gamma = 0$, Focal Loss reduces to standard cross-entropy.
+
+Notice that, with this added term, with an 'easy' class (i.e. a high confidence prediction), $\hat{y}_i$ will be close to 1, and the modulating factor $(1-\hat{y}_i) ^ \gamma$, will approach zero. Conversely, poorly predicted samples (small $\hat{y}_i$) yield a factor near one, leaving their loss unaffected and thus emphasized during training.
+
+**Application:** Essential for enforcing higher accuracy on difficult examples, specifically in imbalanced classification problems, like medical diagnosis.
 
 ---
 
 ### 8. Hinge Loss
 
-$L = \frac{1}{N} \sum_{i=1}^N \max(0, 1 - y_i \hat{y}_i)$
+Support Vector Machines help classification models generalize better by maximizing the margin between classes. It is mainly trained using Hinge Loss.
 
-Hinge Loss underlies support vector machines (SVMs), enforcing not just correct classification but a margin of separation between classes.
+$$L = \frac{1}{N} \sum_{i=1}^N \max(0, 1 - y_i \hat{y}_i)$$
 
-**Application:** Central to margin-based classifiers, particularly SVMs.
+Where:
+
+- $(y_i \hat{y}_i)$ is the 'margin'.
+- If $(y_i \hat{y}_i \ge 1)$, the sample is classified correctly with a safe margin, and loss = 0.
+- If $(y_i \hat{y}_i < 1)$, either the sample is misclassified or classified with insufficient confidence, and loss increases linearly.
+
+&nbsp; We take the maximum of zero and the margin-based term to ensure that only misclassified or low-confidence samples contribute to the loss. It penalizes points that are close to or on the wrong side of the decision boundary. Unlike cross-entropy, it does not push probabilities toward 1, but pushes the decision boundary so that classes are separated by the largest possible margin. This helps improve robustness against noise and overfitting. Minimizing Hinge Loss naturally leads to maximizing this margin, which improves generalization.
 
 ---
 
 ### 9. Centre Loss
 
-$L = \tfrac{1}{2} \sum_{i=1}^N | x_i - c_{y_i} |_2^2$
+$$L = \tfrac{1}{2} \sum_{i=1}^N | x_i - c_{y_i} |_2^2$$
 
-Here $x_i$ denotes the learned feature of the $i$-th sample, and $c_{y_i}$ the centre of its class. Centre Loss drives intra-class compactness while preserving inter-class distinction when combined with softmax.
+Where:
 
-**Application:** Crucial in deep feature learning tasks such as face recognition.
+- $x_i$ is the feature representation of the $i$-th sample.
+- $c_{y_i}$ is the centre (average embedding) of the class to which the $i$‑th sample belongs.
+- $|\cdot|_2$ denotes the Euclidean distance.
+
+Center Loss is used to encourage a model to make features of the same class cluster together in feature space. When working with deep learning tasks, input features are often embedded as vectors and used to make predictions. Often times, classification loss is used, but, when we need specificity (such as recoginizing a specific face, not just a 'human face'), we need to ensure that features of the same class are close together.
+
+The loss measures how far each feature vector is from its class center and penalizes larger distances. Minimizing Center Loss forces samples from the same class to cluster tightly around their center, reducing intra‑class variance.
+This is often combined with a standard classification loss from earlier to ensure both inter-class separability and intra-class compactness.
+
+**Application:** Crucial in deep feature learning tasks such as image retrieval.
 
 ---
 

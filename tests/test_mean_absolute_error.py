@@ -32,7 +32,7 @@ def test_mean_absolute_error_matches_sklearn_case2():
 def test_mean_absolute_error_matches_sklearn_case3():
     y_true = np.array([-2.0, -1.0, 0.0, 1.0])
     y_pred = np.array([-1.5, -0.4, 0.3, 1.2])
-    result = mean_absolute_error(y_true, y_pred)
+    result = mean_absolute_error(y_true, y_pred)    
     expected = sk_mean_absolute_error(y_true, y_pred)
     assert np.isclose(result, expected)
 
