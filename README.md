@@ -4,7 +4,7 @@
 
 *Note: the concept of loss functions is closely related to that of [Similarity Metrics](https://github.com/intelligent-username/Similarity-Metrics).*
 
-Loss arises whenever performance falls short of expectation. In predictive applications, it is essential to assess the reliability of the estimator. A **loss function** provides a quantitative rule for measuring how far predictions diverge from observed outcomes. By minimizing the loss, we guide the learning process of a predictive system toward parameters that yield greater accuracy.
+Loss arises whenever performance falls short of expectation. In predicUnlike MSE and cross-entropy, IoU considers global area overlap. That's why IoU directly measures geometric precision ($\frac{\text{True positives}}{\text{Total elements}}$).ive applications, it is essential to assess the reliability of the estimator. A **loss function** provides a quantitative rule for measuring how far predictions diverge from observed outcomes. By minimizing the loss, we guide the learning process of a predictive system toward parameters that yield greater accuracy.
 
 ## The Functions
 
@@ -18,6 +18,8 @@ Loss arises whenever performance falls short of expectation. In predictive appli
 - 'Robustness' refers to resilience against outliers.
 
 Any other notation will be defined as needed.
+
+---
 
 ### 1. Mean Squared Error (MSE)
 
@@ -89,7 +91,7 @@ $$L = -\frac{1}{N} \sum_{i=1}^N \left[y_i \log(\hat{y}_i) + (1-y_i) \log(1-\hat{
 
 with
 
-- $y_i \in \{0, 1\}$ being the true binary label, and
+- $y_i \in$  {$0, 1$} being the true binary label, and
 - $\hat{y}_i \in (0, 1)$ being the predicted probability of the positive class.
 
 Also called Binary Cross-Entropy, log Loss is derived from information theory as the negative log-likelihood of a Bernoulli distribution. It measures how well the predicted probabilities align with the actual outcomes. Confident but wrong predictions receive a higher penalty than uncertain ones.
@@ -262,7 +264,7 @@ For soft predictions, $\hat{y}_i$ may lie in $[0,1]$.
 The numerator (dot product) counts overlapping predictions. The denominator takes the union of all positive predictions.
 Here, we don't rescale, so the range for the loss function is $[0, 2]$.
 
-Unlike MSE and cross-entropy, IoU considers global area overlap. That’s why IoU directly measures geometric precision ($\frac{\# \text{ of True positives}}{\# \text{ of elements}}$).
+Unlike MSE and cross-entropy, IoU considers global area overlap. That’s why IoU directly measures geometric precision ($\frac{\text{Number of True positives}}{\text{Number of elements}}$).
 
 IoU loss is used in image segmentation (i.e. finding which two pictures are of the same object) and other high accuracy overlap-based tasks.
 
@@ -278,7 +280,8 @@ IoU loss is used in image segmentation (i.e. finding which two pictures are of t
 
 ## Installation & Setup
 
-1. Create and activate a Python environment (3.9+ recommended).
+1. Create and activate a local/virtual Python environment (or just download the dependencies straight to your system).
+
 2. Install core dependencies:
 
    ```powershell
@@ -292,14 +295,16 @@ IoU loss is used in image segmentation (i.e. finding which two pictures are of t
    conda activate loss-functions
    ```
 
-3. Run tests to verify implementations:
+3. Run tests (if needed):
 
    ```powershell
    pytest tests/
    ```
 
-4. Open any notebook inside `demos/` to begin prototyping and documenting examples.
+4. Use any notebook inside `demos/` to begin prototyping the loss functions.
 
-Feel free to replace or expand upon these steps as the draft matures.
+Feel free to replace or expand upon these demos.
+
+### License
 
 This repository is under the [MIT License](LICENSE).
