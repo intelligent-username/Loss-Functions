@@ -88,11 +88,13 @@ Another important application of this is quantile regression, wherein we estimat
 
 ### 4. Huber Loss
 
-$L_\delta =
+$$
+L_\delta =
 \begin{cases}
 \tfrac{1}{2}(y_i - \hat{y}_i)^2 & \text{if } |y_i - \hat{y}_i| \le \delta \ \\
 \delta|y_i - \hat{y}_i| - \tfrac{1}{2}\delta^2 & \text{otherwise}
-\end{cases}$
+\end{cases}
+$$
 
 with $\delta > 0$.
 
@@ -165,7 +167,9 @@ This loss function is useful in more general classification tasks.
 
 With other cross-entropy losses, we may have a high proportion of examples that are 'easy' to predict, which may dominate the loss values. Focal Loss modifies standard cross-entropy by adding a modulating factor, $(1-\hat{y}_i)^\gamma$.
 
-$$L = -\frac{1}{N} \sum_{i=1}^N \big[\alpha (1 - \hat{y}_i)^\gamma y_i \log(\hat{y}_i) + (1-\alpha) \hat{y}_i^\gamma (1-y_i) \log(1-\hat{y}_i)\big]$$
+$$
+L = -\frac{1}{N} \sum_{i=1}^N \big[\alpha (1 - \hat{y}_i)^\gamma y_i \log(\hat{y}_i) + (1-\alpha) \hat{y}_i^\gamma (1-y_i) \log(1-\hat{y}_i)\big]
+$$
 
 With
 
