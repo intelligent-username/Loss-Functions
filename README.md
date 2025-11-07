@@ -30,7 +30,7 @@ Loss arises whenever performance falls short of expectation. In predicive applic
 
 - $N$ is the number of samples
 - $y_i$ is the true value, and
-- $\hat{y}_i$ (or anything else with a h$\hat{a}$t) is the predicted value.
+- $\hat{y}_i$ (or anything else with a hat) is the predicted value.
 - $\log_n$ is assumed to have the base $e$, but bases 2 or 10 can also be used, changing the scale but not the relative ordering of losses.
 
 - 'Robustness' refers to resilience against outliers.
@@ -112,12 +112,12 @@ $$L = -\frac{1}{N} \sum_{i=1}^N \left[y_i \log(\hat{y}_i) + (1-y_i) \log(1-\hat{
 
 with
 
-- $y_i \in$  {$0, 1$} being the true binary label, and
+- $y_i \in$  ${0, 1}$ being the true binary label, and
 - $\hat{y}_i \in (0, 1)$ being the predicted probability of the positive class.
 
 Also called Binary Cross-Entropy, log Loss is derived from information theory as the negative log-likelihood of a Bernoulli distribution. It measures how well the predicted probabilities align with the actual outcomes. Confident but wrong predictions receive a higher penalty than uncertain ones.
 
-**Application:** Log loss is absolutely essential to logistic regression, binary classification, and probabilistic forecasting.
+**Application:** Log loss is absolutely essential to [logistic regression](https://github.com/intelligent-username/Classification?tab=readme-ov-file#logistic-regression), binary classification, and probabilistic forecasting.
 
 ---
 
@@ -140,7 +140,7 @@ $$
 
 This time, unlike binary cross-entropy, we take the negative log-likelihood of a categorical distribution.
 
-**Application:** Used in multi-class (discrete) classification.
+**Application:** Used in multi-class (discrete) [classification](https://github.com/intelligent-username/Classification?tab=readme-ov-file#multi-class-classification).
 
 ---
 
@@ -243,7 +243,7 @@ Notice that, when $\vec{y}$ = $\vec{\hat{y}}$, the cosine between them is 1, i.e
 
 In this form of loss, we only care about angular similarity (directional overlap), and ignore magnitude.
 
-**Application:** Widely used in embedding spaces (e.g. image recognition) and retrieval systems (e.g. k-nearest neighbours).
+**Application:** Widely used in embedding spaces (e.g. image recognition) and retrieval systems (e.g. [k-nearest neighbours](https://github.com/intelligent-username/Classification?tab=readme-ov-file#k-nearest-neighbours)).
 
 ---
 
